@@ -12,7 +12,8 @@ handle(int clientfd, char digest_hex[static 32]) {
     char resp[1024] = {0};
     int l_resp = read(clientfd, resp, sizeof(resp));
 
-    if (strcmp(resp, "NOP") == 0 || l_resp == 0) {
+    if (strcmp(resp, "NOP\n") == 0 || l_resp == 0) {
+        log_info("%s  NOT FOUND :(", digest_hex);
         close(clientfd);
         return 0;
     }
