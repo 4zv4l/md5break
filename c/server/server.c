@@ -10,9 +10,9 @@ handle(int clientfd, char digest_hex[static 32]) {
     dprintf(clientfd, "%s\n", digest_hex);
 
     char resp[1024] = {0};
-    read(clientfd, resp, sizeof(resp));
+    int l_resp = read(clientfd, resp, sizeof(resp));
 
-    if (strcmp(resp, "NOP") == 0) {
+    if (strcmp(resp, "NOP") == 0 || l_resp == 0) {
         close(clientfd);
         return 0;
     }
