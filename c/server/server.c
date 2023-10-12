@@ -92,10 +92,6 @@ loadFile(char filename[static 1], int *counter) {
     return lines;
 }
 
-/*
- * no need to free `hashes` since it wont grow
- * and be auto free at the end
- */
 int
 main(int argc, char **argv) {
     struct config config = { .max_client = 5 };
@@ -129,11 +125,12 @@ main(int argc, char **argv) {
 
         log_info("New Client");
         if (handle(clientfd, (unsigned char*)hashes[n_hash-1]))
-            n_hash--;
+            free(hashes[n_hash--]);
 
         if (!n_hash)
             break;
     }
 
+    free(hashes);
     printf("Enough work for today :)\n");
 }
