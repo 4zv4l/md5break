@@ -9,7 +9,7 @@ to do some `C` and `Ruby`, did the prototype in `Ruby` then made it in `C`.
 ## how
 
 - server: use a file containing `md5 hashes` that it will send to clients
-- client: use a file containing `password` to break the `md5 hash`
+- client: use a file containing `passwords` to break the `md5 hash`
 
 ### example
 
