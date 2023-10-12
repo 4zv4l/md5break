@@ -56,8 +56,8 @@ handle(int clientfd, unsigned char digest_hex[static 32]) {
  * read every line being 32 chars long (digest_hex)
  * in a char** buffer (needs to be freed afterward)
  */
-char
-**loadFile(char filename[static 1], int *counter) {
+char**
+loadFile(char filename[static 1], int *counter) {
     FILE *f = fopen(filename, "r");
     if (!f)
         die("%s", strerror(errno));
