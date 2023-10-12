@@ -6,7 +6,7 @@
 #include "../lib/net.h"
 
 int
-handle(int clientfd, char digest_hex[static 32]) {
+handle(int clientfd, unsigned char digest_hex[static 32]) {
     dprintf(clientfd, "%s\n", digest_hex);
 
     char resp[1024] = {0};
@@ -18,11 +18,26 @@ handle(int clientfd, char digest_hex[static 32]) {
         return 0;
     }
 
+    // check if its the right passwd
+    resp[strlen(resp)-1] = 0;
+    unsigned char buff_digest[MD5_DIGEST_LEN+1] = {0};
+    unsigned char buff_digest_hex[(MD5_DIGEST_LEN*2)+1] = {0};
+    md5_from_str(resp, buff_digest);
+    md5_digest_hex(buff_digest, buff_digest_hex);
+    if (memcmp(buff_digest_hex, digest_hex, MD5_DIGEST_LEN*2) != 0) {
+        log_info("client sent bad info !");
+        log_info("recv: %s", resp);
+        log_info("for : %s", digest_hex);
+        log_info("but : %s", buff_digest_hex);
+        close(clientfd);
+        return 0;
+    }
+
     FILE *f = fopen("md5server.out", "a+");
     if (!f)
         die("couldnt open output file: %s", strerror(errno));
-    printf("%s  %s", digest_hex, resp);
-    fprintf(f, "%s  %s", digest_hex, resp);
+    printf("%s  %s\n", digest_hex, resp);
+    fprintf(f, "%s  %s\n", digest_hex, resp);
 
     fclose(f);
     close(clientfd);
@@ -55,13 +70,13 @@ char
             die("couldnt allocate memory for a line in the file");
 
         fgets(line, 1024, f);
-        int length = strlen(line)-1;
+        line[strlen(line)-1] = 0;
+        int length = strlen(line);
         if (length != 32) {
-            printf("skipping: %s", line);
+            printf("skipping: %s\n", line);
             free(line);
             continue;
         }
-        line[strlen(line)-1] = 0;
         lines[(*counter)++] = line;
     }
 
@@ -105,7 +120,7 @@ main(int argc, char **argv) {
         }
 
         log_info("New Client");
-        if (handle(clientfd, hashes[n_hash-1]))
+        if (handle(clientfd, (unsigned char*)hashes[n_hash-1]))
             n_hash--;
 
         if (!n_hash)
