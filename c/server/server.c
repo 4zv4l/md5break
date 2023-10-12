@@ -5,21 +5,29 @@
 #include "../lib/config.h"
 #include "../lib/net.h"
 
+/*
+ * send `digest_hex` to client
+ * wait for response from client
+ * if `NOP` then didnt find and continue
+ * else check if the received passwd is right (md5sum)
+ * if not continue
+ * else add the passwd and the hash in the output file and print it
+ */
 int
 handle(int clientfd, unsigned char digest_hex[static 32]) {
     dprintf(clientfd, "%s\n", digest_hex);
 
     char resp[1024] = {0};
     int l_resp = read(clientfd, resp, sizeof(resp));
+    resp[strlen(resp)-1] = 0;
 
-    if (strcmp(resp, "NOP\n") == 0 || l_resp == 0) {
+    if (strcmp(resp, "NOP") == 0 || l_resp == 0) {
         log_info("%s  NOT FOUND :(", digest_hex);
         close(clientfd);
         return 0;
     }
 
     // check if its the right passwd
-    resp[strlen(resp)-1] = 0;
     unsigned char buff_digest[MD5_DIGEST_LEN+1] = {0};
     unsigned char buff_digest_hex[(MD5_DIGEST_LEN*2)+1] = {0};
     md5_from_str(resp, buff_digest);

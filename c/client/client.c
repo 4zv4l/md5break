@@ -45,6 +45,12 @@ crack(struct cracker *c) {
     return 0;
 }
 
+/*
+ * receive `digest_hex` from server
+ * try to crack it
+ * if succeed, send the password
+ * else send `NOP`
+ */
 int
 handle(struct config *config) {
     struct cracker cracker = { .filename = config->filename };
